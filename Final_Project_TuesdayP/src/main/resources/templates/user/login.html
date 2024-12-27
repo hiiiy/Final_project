@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>로그인</title>
+<link rel="stylesheet" href="/css/layout.css">
+<script>
+    // 팝업창 표시 함수
+    function showSignupSuccessPopup() {
+        alert("회원가입이 완료되었습니다.");
+    }
+</script>
+</head>
+<body class="flex-center">
+    <div class="container">
+        <img src="/images/non_tuesday.png" alt="로고" class="logo">
+        <div class="logo">로그인</div>
+
+        <!-- 알림 메시지 표시 -->
+        <div th:if="${errorMessage}" class="alert alert-danger">
+            <p th:text="${errorMessage}"></p>
+        </div>
+
+        <form action="/user/login" method="post">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="이메일을 입력해주세요..." required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="비밀번호를 입력해주세요..." required>
+            </div>
+            <button type="submit" class="login-btn">로그인</button>
+        </form>
+        <a href="/user/forgotPassword" class="forgot-password">비밀번호를 잊으셨나요?</a>
+        <div class="divider">―――――――――――또는―――――――――――</div>
+        <p>
+            계정이 없으신가요? <a href="/user/addUser" class="sign-up">가입하기</a>
+        </p>
+    </div>
+
+    <!-- 회원가입 성공 팝업 -->
+    <script th:if="${signupSuccess}">
+        showSignupSuccessPopup();
+    </script>
+</body>
+</html>

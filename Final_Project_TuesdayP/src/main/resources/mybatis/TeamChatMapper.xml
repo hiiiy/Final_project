@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cjt.tuesday.mapper.TeamChatMapper">
+
+	<!-- 메시지 저장 -->
+	<insert id="insertMessage"
+		parameterType="com.cjt.tuesday.dtos.TeamChatMessageDto">
+		INSERT INTO team_chat (project_id, user_id, message,
+		timestamp)
+		VALUES (#{projectId}, #{userId}, #{message}, #{timestamp})
+	</insert>
+
+	<!-- 특정 프로젝트의 메시지 가져오기 -->
+	<select id="findMessagesByProjectId"
+		resultType="com.cjt.tuesday.dtos.TeamChatMessageDto">
+		SELECT
+		tc.project_id AS projectId,
+		tc.user_id AS userId,
+		u.username AS username,
+		tc.message AS message,
+		tc.timestamp AS timestamp
+		FROM
+		team_chat tc
+		JOIN
+		users u ON tc.user_id = u.user_id
+		WHERE
+		tc.project_id = #{projectId}
+		ORDER BY
+		tc.timestamp ASC
+	</select>
+	
+	    <!-- 메시지 읽음 상태 업데이트 -->
+    <update id="incrementReadCount">
+        UPDATE team_chat
+        SET read_count = read_count + 1
+        WHERE id = #{messageId}
+    </update>
+
+    <!-- 읽지 않은 메시지 개수 조회 -->
+    <select id="countUnreadMessages" resultType="int">
+        SELECT COUNT(*)
+        FROM team_chat
+        WHERE project_id = #{projectId} AND read_count = 0
+    </select>
+
+
+</mapper>

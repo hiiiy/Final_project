@@ -1,0 +1,33 @@
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-submit {
+    background-color: #5e9ed6;
+    color: white;
+}
+
+.btn-submit:hover {
+    background-color: #4a8bc1;
+}
+
+.btn-cancel {
+    background-color: #e0e0e0;
+    color: #555;
+}
+
+.btn-cancel:hover {
+    background-color: #d6d6d6;
+}

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>현재 프로젝트</title>
+<link rel="stylesheet" href="/css/layout.css">
+<link rel="stylesheet" href="/css/teamchat.css">
+<link rel="stylesheet" href="/css/mouse.css">
+<link rel="stylesheet" href="/css/wbs.css">
+
+
+<link
+	href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600&display=swap"
+	rel="stylesheet">
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="/js/teaminfo.js" type="module"></script>
+<script src="/js/teamchat.js" type="module"></script>
+<script type="module" src="/js/mouse.js"></script>
+<script src="/js/wbs.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<script
+	src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/locale/ko/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+
+
+
+
+
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+</head>
+<body>
+	<!-- 상단 헤더 -->
+	<header class="header">
+		<div class="header-left">
+			<a th:href="@{/home(projectId=${projectId})}"> <img
+				src="/images/tuesday.png" alt="로고" class="logo">
+			</a>
+		</div>
+		<h1 class="project-name" th:text="${projectName}">프로젝트 이름</h1>
+		<div class="header-icons">
+			<a href="/project/list"><img src="/images/project-icon.png"
+				alt="프로젝트" class="icon"></a> <a href="/user/profile"><img
+				src="/images/user-icon.png" alt="마이페이지" class="icon"></a> <a
+				href="/user/logout"><img src="/images/logout-icon.png"
+				alt="로그아웃" class="icon"></a>
+		</div>
+	</header>
+	<div class="main-container">
+		<!-- 좌측 팀원 상태 -->
+		<aside class="team-status" th:fragment="teamStatus">
+			<ul>
+				<!-- 팀장 정보 표시 -->
+				<li>
+					<div class="profile-info" data-user-id="${teamLeader.userId}"
+						data-status="${teamLeader.status}">
+						<div class="profile-photo">
+							<div id="profilePhotoWrapper">
+								<div class="profileInitial"
+									th:style="'background-color:' + ${teamLeader.profileColor}"
+									th:text="${teamLeader.username.substring(0, 2)}"></div>
+								<div class="status-indicator"
+									id="status-indicator-${teamLeader.userId}"
+									th:classappend="${teamLeader.status}"></div>
+							</div>
+						</div>
+						<div class="text-info">
+							<span class="username" th:text="${teamLeader.username}">팀장
+								이름</span> <span class="role" th:text="'팀장'"></span> <span
+								class="status-text" id="status-text-${teamLeader.userId}"
+								th:text="${teamLeader.status == 'active' ? '활동 중' : '오프라인'}"></span>
+						</div>
+					</div>
+				</li>
+
+				<!-- 팀원 정보 표시 -->
+				<li th:each="member : ${teamMembers}">
+					<div class="profile-info" data-user-id="${member.userId}"
+						data-status="${member.status}">
+						<div class="profile-photo">
+							<div id="profilePhotoWrapper">
+								<div class="profileInitial"
+									th:style="'background-color:' + ${member.profileColor}"
+									th:text="${member.username.substring(0, 2)}"></div>
+								<div class="status-indicator"
+									id="status-indicator-${member.userId}"
+									th:classappend="${member.status}"></div>
+							</div>
+						</div>
+						<div class="text-info">
+							<span class="username" th:text="${member.username}">팀원 이름</span>
+							<span class="role" th:text="'팀원'"></span> <span
+								class="status-text" id="status-text-${member.userId}"
+								th:text="${member.status == 'active' ? '활동 중' : '오프라인'}"></span>
+						</div>
+					</div>
+				</li>
+			</ul>
+
+			<!-- 초대 버튼 -->
+			<button id="inviteButton" class="invite-btn"
+				th:data-project-id="${projectId}">팀원 초대</button>
+		</aside>
+
+		<!-- WBS 섹션 -->
+		<div class="wbs-section">
+			<h2>WBS 작업 관리</h2>
+			<table id="wbs-table">
+				<thead>
+					<tr>
+						<th>작업 이름</th>
+						<th>담당자</th>
+						<th>상태</th>
+						<th>시작일</th>
+						<th>종료일</th>
+						<th>액션</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!-- 작업 목록 렌더링 -->
+				</tbody>
+			</table>
+			<button id="add-wbs-btn" onclick="openAddWbsModal()">작업 추가</button>
+		</div>
+
+		<!-- Hidden inputs for Thymeleaf variables -->
+		<input type="hidden" id="project-id" th:value="${projectId}" /> <input
+			type="hidden" id="current-user-id" th:value="${currentUser.userId}" />
+		<input type="hidden" id="current-user-name"
+			th:value="${currentUser.username}" /> <input type="hidden"
+			id="current-user-profile-color"
+			th:value="${currentUser.profileColor}"> <input type="hidden"
+			id="project-start-date" th:value="${projectStartDate}" /> <input
+			type="hidden" id="project-end-date" th:value="${projectEndDate}" />
+
+		<!-- 채팅 UI -->
+		<!-- 채팅 UI -->
+		<div id="chat-container" class="chat-expanded">
+			<div id="chat-header">
+				Team Chat
+				<button id="toggle-chat" class="chat-toggle-btn">–</button>
+			</div>
+			<div id="chat-notification" class="hidden">새로운 메시지가 도착했습니다.</div>
+			<div id="chat-messages"></div>
+			<div id="chat-footer">
+				<input id="chat-input" type="text" placeholder="메시지를 입력하세요" />
+				<button id="send-button">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none"
+						viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+							stroke-width="2" d="M3 10l9-7 9 7-9 7-9-7z" />
+                <path stroke-linecap="round" stroke-linejoin="round"
+							stroke-width="2" d="M3 10v10a1 1 0 001 1h16a1 1 0 001-1V10" />
+            </svg>
+				</button>
+			</div>
+		</div>
+
+		<div>
+			<h2>WBS 작업 기간 그래프</h2>
+			<canvas id="wbs-chart"></canvas>
+		</div>
+
+
+		<!-- JS 초기화 -->
+		<script type="module">
+            import { initChat } from '/js/teamchat.js';
+            import { initializeMouseTracking } from '/js/mouse.js';
+    		import { initTeamInfo } from '/js/teaminfo.js';
+
+
+            const projectId = document.getElementById('project-id').value;
+            const currentUser = {
+                userId: document.getElementById('current-user-id').value,
+                username: document.getElementById('current-user-name').value,
+                profileColor: document.getElementById('current-user-profile-color').value
+            };
+
+            // 전역 객체로 설정
+            window.currentUser = currentUser;
+
+            // 채팅 초기화
+            initChat(projectId, currentUser);
+
+            // 마우스 트래킹 초기화
+            initializeMouseTracking(currentUser);
+
+    		// 팀원 상태 업데이트 초기화
+    		initTeamInfo(projectId, currentUser);
+        </script>
+	</div>
+
+	<div id="add-wbs-modal" class="modal">
+		<div class="modal-content">
+			<span class="close" onclick="closeAddWbsModal()">&times;</span>
+			<h2>작업 추가</h2>
+			<form id="add-wbs-form">
+				<label for="taskName">작업 이름:</label> <input type="text"
+					id="taskName" name="taskName" required> <label
+					for="assignee">담당자:</label> <input type="text" id="assignee"
+					name="assignee"> <label for="status">상태:</label> <select
+					id="status" name="status" required>
+					<option value="개발 예정">개발 예정</option>
+					<option value="개발중">개발중</option>
+					<option value="완료">완료</option>
+				</select> <label for="startDate">시작일:</label> <input type="date"
+					id="startDate" name="startDate" required> <label
+					for="endDate">종료일:</label> <input type="date" id="endDate"
+					name="endDate" required>
+
+				<button type="submit">추가</button>
+			</form>
+
+		</div>
+	</div>
+	<!-- 작업 수정 모달 -->
+	<div id="edit-wbs-modal" class="modal">
+		<div class="modal-content">
+			<span class="close" onclick="closeEditWbsModal()">&times;</span>
+			<h2>작업 수정</h2>
+			<form id="edit-wbs-form">
+				<input type="hidden" id="edit-task-id"> <label
+					for="edit-taskName">작업 이름:</label> <input type="text"
+					id="edit-taskName" name="taskName" required> <label
+					for="edit-assignee">담당자:</label> <input type="text"
+					id="edit-assignee" name="assignee"> <label
+					for="edit-status">상태:</label> <select id="edit-status"
+					name="status" required>
+					<option value="개발 예정">개발 예정</option>
+					<option value="개발중">개발중</option>
+					<option value="완료">완료</option>
+				</select> <label for="edit-startDate">시작일:</label> <input type="date"
+					id="edit-startDate" name="startDate" required> <label
+					for="edit-endDate">종료일:</label> <input type="date"
+					id="edit-endDate" name="endDate" required>
+
+				<button type="submit">수정</button>
+			</form>
+
+		</div>
+	</div>
+</body>
+</html>

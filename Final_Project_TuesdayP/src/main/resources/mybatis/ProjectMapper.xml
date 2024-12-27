@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cjt.tuesday.mapper.ProjectMapper">
+
+	<resultMap id="userResultMap"
+		type="com.cjt.tuesday.dtos.UserDto">
+		<id column="user_id" property="userId" />
+		<result column="username" property="username" />
+		<result column="email" property="email" />
+		<result column="title" property="title" />
+		<result column="status" property="status" />
+		<result column="profile_color" property="profileColor" />
+	</resultMap>
+
+	<!-- 사용자 ID로 프로젝트 목록 가져오기 -->
+	<select id="findProjectsByUserId"
+		resultType="com.cjt.tuesday.dtos.ProjectDto">
+		SELECT *
+		FROM projects
+		WHERE user_id = #{userId}
+	</select>
+
+	<!-- 프로젝트 ID로 단일 프로젝트 가져오기 -->
+	<select id="findProjectById" parameterType="int"
+		resultType="com.cjt.tuesday.dtos.ProjectDto">
+		SELECT
+		id AS id,
+		name AS name,
+		user_id AS userId,
+		team_leader_id AS teamLeaderId,
+		start_date AS startDate,
+		end_date AS
+		endDate
+		FROM projects
+		WHERE id = #{projectId}
+	</select>
+
+
+	<select id="findProjectNameById" resultType="String">
+		SELECT name FROM
+		projects WHERE id = #{projectId}
+	</select>
+
+	<!-- 새 프로젝트 추가 -->
+	<insert id="addProject">
+		INSERT INTO projects (name, user_id, team_leader_id,
+		start_date, end_date)
+		VALUES (#{name}, #{userId}, #{teamLeaderId},
+		#{startDate}, #{endDate});
+	</insert>
+
+	<!-- 프로젝트 이름 업데이트 -->
+	<update id="updateProjectName">
+		UPDATE projects
+		SET name = #{name}
+		WHERE id =
+		#{projectId}
+	</update>
+
+	<!-- 프로젝트 삭제 -->
+	<delete id="deleteProject">
+		DELETE FROM projects
+		WHERE id = #{projectId}
+	</delete>
+
+	<!-- 프로젝트 팀장 정보 조회 -->
+	<select id="findTeamLeader" resultMap="userResultMap">
+		SELECT u.user_id,
+		u.username, u.email, u.title, u.status, u.profile_color
+		FROM users u
+		INNER JOIN projects p ON p.team_leader_id = u.user_id
+		WHERE p.id =
+		#{projectId};
+	</select>
+
+	<!-- 프로젝트에 속한 팀원 목록 가져오기 -->
+	<select id="findTeamMembersByProjectId"
+		resultMap="userResultMap">
+		SELECT u.user_id, u.username, u.email, u.title, u.status,
+		u.profile_color
+		FROM users u
+		INNER JOIN project_members pm ON pm.user_id
+		= u.user_id
+		WHERE pm.project_id = #{projectId};
+	</select>
+
+	<select id="findAccessibleProjects"
+		resultType="com.cjt.tuesday.dtos.ProjectDto">
+		SELECT DISTINCT p.*
+		FROM projects p
+		LEFT JOIN project_members
+		pm ON p.id = pm.project_id
+		WHERE p.user_id = #{userId} OR pm.user_id =
+		#{userId}
+	</select>
+</mapper>

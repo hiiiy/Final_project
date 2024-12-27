@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>현재 프로젝트</title>
+<link rel="stylesheet" href="/css/layout.css">
+<link rel="stylesheet" href="/css/teamchat.css">
+<link rel="stylesheet" href="/css/minigantt.css">
+
+
+<link rel="stylesheet"
+	href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
+
+<link
+	href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600&display=swap"
+	rel="stylesheet">
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
+
+<script src="/js/teaminfo.js" type="module"></script>
+<script src="/js/teamchat.js" type="module"></script>
+<script src="/js/minigantt.js" type="module"></script>
+
+</head>
+<body>
+	<!-- 성공 메시지 -->
+	<div id="inviteSuccessMessage" th:if="${inviteSuccess}" class="alert">
+		<p th:text="${inviteSuccess}"></p>
+	</div>
+
+	<!-- 상단 헤더 -->
+	<header class="header">
+		<div class="header-left">
+			<a th:href="@{/home(projectId=${projectId})}"> <img
+				src="/images/tuesday.png" alt="로고" class="logo">
+			</a>
+		</div>
+		<h1 class="project-name" th:text="${projectName}">프로젝트 이름</h1>
+		<div class="header-icons">
+			<a href="/project/list"><img src="/images/project-icon.png"
+				alt="프로젝트" class="icon"></a> <a href="/user/profile"><img
+				src="/images/user-icon.png" alt="마이페이지" class="icon"></a> <a
+				href="/user/logout"><img src="/images/logout-icon.png"
+				alt="로그아웃" class="icon"></a>
+		</div>
+	</header>
+
+	<div class="main-container">
+		<input type="hidden" id="project-id" th:value="${projectId}" /> <input
+			type="hidden" id="current-user-id" th:value="${currentUser.userId}" />
+		<input type="hidden" id="current-user-name"
+			th:value="${currentUser.username}" />
+		<!-- 좌측 팀장 정보 -->
+		<aside class="team-status" th:fragment="teamStatus">
+			<ul>
+				<!-- 팀장 정보 표시 -->
+				<li>
+					<div class="profile-info" data-user-id="${teamLeader.userId}"
+						data-status="${teamLeader.status}">
+						<div class="profile-photo">
+							<div id="profilePhotoWrapper">
+								<div class="profileInitial"
+									th:style="'background-color:' + ${teamLeader.profileColor}"
+									th:text="${teamLeader.username.substring(0, 2)}"></div>
+								<div class="status-indicator"
+									id="status-indicator-${teamLeader.userId}"
+									th:classappend="${teamLeader.status}"></div>
+							</div>
+						</div>
+						<div class="text-info">
+							<span class="username" th:text="${teamLeader.username}">팀장
+								이름</span> <span class="role" th:text="'팀장'"></span> <span
+								class="status-text" id="status-text-${teamLeader.userId}"
+								th:text="${teamLeader.status == 'active' ? '활동 중' : '오프라인'}"></span>
+						</div>
+					</div>
+				</li>
+
+				<!-- 팀원 정보 표시 -->
+				<li th:each="member : ${teamMembers}">
+					<div class="profile-info" data-user-id="${member.userId}"
+						data-status="${member.status}">
+						<div class="profile-photo">
+							<div id="profilePhotoWrapper">
+								<div class="profileInitial"
+									th:style="'background-color:' + ${member.profileColor}"
+									th:text="${member.username.substring(0, 2)}"></div>
+								<div class="status-indicator"
+									id="status-indicator-${member.userId}"
+									th:classappend="${member.status}"></div>
+							</div>
+						</div>
+						<div class="text-info">
+							<span class="username" th:text="${member.username}">팀원 이름</span>
+							<span class="role" th:text="'팀원'"></span> <span
+								class="status-text" id="status-text-${member.userId}"
+								th:text="${member.status == 'active' ? '활동 중' : '오프라인'}"></span>
+						</div>
+					</div>
+				</li>
+			</ul>
+
+			<!-- 초대 버튼 -->
+			<button id="inviteButton" class="invite-btn"
+				th:data-project-id="${projectId}">팀원 초대</button>
+		</aside>
+
+		<!-- 중앙 콘텐츠 -->
+		<div class="center-content">
+			<div class="work-section">
+				<div class="work-card">
+					<a th:href="'/umlpage?projectId=' + ${projectId}"
+						class="work-card-link">UML</a>
+				</div>
+				<div class="work-card">
+					<a th:href="'/uipage?projectId=' + ${projectId}"
+						class="work-card-link">UI</a>
+				</div>
+			</div>
+			<div class="summary-section">
+				<!-- 미니 간트 차트 -->
+				<div class="work-card">
+					<a th:href="'/wbspage?projectId=' + ${projectId}"
+						class="work-card-link">WBS</a>
+				</div>
+
+			</div>
+
+
+		</div>
+
+
+		<!-- 채팅 UI -->
+		<div id="chat-container" class="chat-expanded">
+			<div id="chat-header">
+				Team Chat
+				<button id="toggle-chat" class="chat-toggle-btn">–</button>
+			</div>
+			<div id="chat-notification" class="hidden">새로운 메시지가 도착했습니다.</div>
+			<div id="chat-messages"></div>
+			<div id="chat-footer">
+				<input id="chat-input" type="text" placeholder="메시지를 입력하세요" />
+				<button id="send-button">
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none"
+						viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+							stroke-width="2" d="M3 10l9-7 9 7-9 7-9-7z" />
+                <path stroke-linecap="round" stroke-linejoin="round"
+							stroke-width="2" d="M3 10v10a1 1 0 001 1h16a1 1 0 001-1V10" />
+            </svg>
+				</button>
+			</div>
+		</div>
+	</div>
+	<!-- JS 초기화 -->
+	<script type="module">
+    import { initChat } from '/js/teamchat.js';
+    import { initTeamInfo } from '/js/teaminfo.js';
+
+    // 채팅 초기화
+    const projectId = document.getElementById('project-id').value;
+    const currentUser = {
+        userId: document.getElementById('current-user-id').value,
+        username: document.getElementById('current-user-name').value
+    };
+
+    initChat(projectId, currentUser);
+
+    // 팀원 상태 업데이트 초기화
+    initTeamInfo(projectId, currentUser);
+</script>
+</body>
+</html>

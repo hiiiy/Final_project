@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cjt.tuesday.mapper.WbsMapper">
+
+	<select id="findWbsByProjectId" parameterType="int"
+		resultType="com.cjt.tuesday.dtos.WbsDto">
+		SELECT id,
+		project_id AS projectId,
+		task_name AS taskName,
+		assignee,
+		status,
+		start_date AS startDate,
+		end_date AS endDate,
+		duration,
+		progress
+		FROM wbs
+		WHERE project_id = #{projectId}
+	</select>
+
+
+	<select id="findWbsById" parameterType="int"
+		resultType="com.cjt.tuesday.dtos.WbsDto">
+		SELECT * FROM wbs WHERE id = #{id}
+	</select>
+
+	<insert id="insertWbs"
+		parameterType="com.cjt.tuesday.dtos.WbsDto" useGeneratedKeys="true"
+		keyProperty="id">
+		INSERT INTO wbs (project_id, task_name, assignee, status,
+		start_date,
+		end_date, duration, progress)
+		VALUES (#{projectId},
+		#{taskName}, #{assignee}, #{status}, #{startDate},
+		#{endDate},
+		#{duration}, #{progress})
+	</insert>
+
+	<update id="updateWbs"
+		parameterType="com.cjt.tuesday.dtos.WbsDto">
+		UPDATE wbs
+		SET task_name = #{taskName},
+		assignee =
+		#{assignee},
+		status = #{status},
+		start_date = #{startDate},
+		end_date =
+		#{endDate},
+		updated_at = NOW()
+		WHERE id = #{id}
+	</update>
+
+
+	<delete id="deleteWbs" parameterType="int">
+		DELETE FROM wbs WHERE id =
+		#{id}
+	</delete>
+
+	<select id="findProjectDates" parameterType="int"
+		resultType="com.cjt.tuesday.dtos.ProjectDto">
+		SELECT start_date AS startDate, end_date AS endDate
+		FROM projects
+		WHERE id = #{projectId}
+	</select>
+
+
+
+
+</mapper>

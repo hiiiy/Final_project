@@ -1,0 +1,19 @@
+#mini-gantt {
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    overflow-x: auto;
+    white-space: nowrap;
+    position: relative;
+}
+.gantt-bar {
+    display: inline-block;
+    position: absolute;
+    height: 20px;
+    background-color: #5cb85c;
+    border-radius: 4px;
+    color: white;
+    text-align: center;
+    line-height: 20px;
+    font-size: 12px;
+    padding: 0 5px;
+}

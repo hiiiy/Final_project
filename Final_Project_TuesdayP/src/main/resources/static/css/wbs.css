@@ -1,0 +1,223 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    width: 100%;
+}
+
+/* 기본 버튼 스타일 */
+#add-wbs-btn {
+    background-color: #007bff; /* 기본 색상 (파란색) */
+    color: #fff; /* 텍스트 색상 */
+    border: none; /* 테두리 제거 */
+    border-radius: 5px; /* 버튼 모서리 둥글게 */
+    padding: 10px 20px; /* 버튼 안쪽 여백 */
+    font-size: 16px; /* 글씨 크기 */
+    font-weight: bold; /* 글씨 두께 */
+    cursor: pointer; /* 마우스 커서를 포인터로 변경 */
+    transition: background-color 0.3s, transform 0.2s; /* 효과 추가 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 */
+}
+
+/* 호버 상태 */
+#add-wbs-btn:hover {
+    background-color: #0056b3; /* 어두운 파란색으로 변경 */
+    transform: scale(1.05); /* 약간 커지게 */
+}
+
+/* 클릭 상태 */
+#add-wbs-btn:active {
+    background-color: #004494; /* 더 어두운 파란색 */
+    transform: scale(0.95); /* 작아지는 효과 */
+}
+
+/* 버튼 비활성화 상태 */
+#add-wbs-btn:disabled {
+    background-color: #ccc; /* 회색 */
+    cursor: not-allowed; /* 금지 커서 */
+    box-shadow: none; /* 그림자 제거 */
+}
+
+
+/* WBS 섹션 스타일 */
+.wbs-section {
+    flex: 1;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+/* 테이블 스타일 */
+#wbs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+#wbs-table th, #wbs-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+/* 테이블 헤더 스타일 */
+#wbs-table th {
+    background-color: #5e9ed6;
+    color: white;
+    padding: 12px;
+    text-align: left;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+/* 테이블 데이터 셀 스타일 */
+#wbs-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    font-size: 12px;
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+/* 짝수 행 스타일 */
+#wbs-table tr:nth-child(even) td {
+    background-color: #f1f8fe;
+}
+
+/* 행 호버 효과 */
+#wbs-table tr:hover td {
+    background-color: #e1f0fc;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* 수정/삭제 버튼 스타일 */
+#wbs-table button {
+    background-color: #5e9ed6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s;
+}
+
+#wbs-table button:hover {
+    background-color: #4a8bc1;
+}
+
+/* 페이지 전체 레이아웃 */
+.page-container {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* WBS 섹션 스타일 */
+.wbs-section {
+    flex: 1;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+canvas#wbs-chart {
+    width: 100%;
+    max-width: 800px;
+    height: 400px;
+    margin: auto;
+}
+
+	
+.modal {
+    display: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+    backdrop-filter: blur(5px); /* 배경 흐림 효과 */
+}
+
+/* 모달 내용 스타일 */
+.modal-content {
+    background-color: #ffffff;
+    margin: 10% auto;
+    padding: 20px 30px;
+    border-radius: 12px; /* 둥근 테두리 */
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2); /* 부드러운 그림자 */
+    width: 40%;
+    max-width: 500px;
+    animation: fadeIn 0.3s ease-in-out;
+    font-family: Arial, sans-serif;
+}
+
+/* 닫기 버튼 스타일 */
+.close {
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+/* 입력 필드 스타일 */
+.modal-content input[type="text"],
+.modal-content input[type="date"],
+.modal-content select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0 16px 0;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.modal-content input:focus,
+.modal-content select:focus {
+    border-color: #5e9ed6;
+    outline: none;
+}
+
+/* 버튼 스타일 */
+.modal-content button {
+    background-color: #5e9ed6;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.modal-content button:hover {
+    background-color: #4a8bc1;
+}
+
+/* 페이드인 애니메이션 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

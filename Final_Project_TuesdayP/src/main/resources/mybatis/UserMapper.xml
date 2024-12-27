@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cjt.tuesday.mapper.UserMapper">
+
+	<!-- UserDto 매핑 -->
+	<resultMap id="userResultMap"
+		type="com.cjt.tuesday.dtos.UserDto">
+		<id column="user_id" property="userId" />
+		<result column="username" property="username" />
+		<result column="email" property="email" />
+		<result column="password" property="password" />
+		<result column="title" property="title" />
+		<result column="status" property="status" />
+		<result column="profile_color" property="profileColor" />
+	</resultMap>
+
+	<!-- PasswordResetTokenDto 매핑 -->
+	<resultMap id="passwordResetTokenResultMap"
+		type="com.cjt.tuesday.dtos.PasswordResetTokenDto">
+		<result column="user_id" property="userId" />
+		<result column="token" property="token" />
+		<result column="expires_at" property="expiresAt" />
+	</resultMap>
+
+
+	<select id="findUserById" parameterType="int"
+		resultType="com.cjt.tuesday.dtos.UserDto">
+		SELECT user_id AS userId, username, email, password, title, status,
+		profile_color AS profileColor, last_project_id AS lastProjectId
+		FROM users
+		WHERE user_id = #{userId};
+	</select>
+
+	<!-- 모든 사용자 조회 -->
+	<select id="getAllUsers"
+		resultType="com.cjt.tuesday.dtos.UserDto">
+		SELECT
+		user_id AS userId,
+		username,
+		email,
+		title,
+		status,
+		profile_color AS profileColor
+		FROM users;
+	</select>
+
+	<!-- 사용자 ID로 사용자 조회 -->
+	<select id="getUser" parameterType="int"
+		resultMap="userResultMap">
+		SELECT * FROM users WHERE user_id = #{userId}
+	</select>
+
+	<!-- 사용자 추가 (회원가입) -->
+	<insert id="addUser">
+		INSERT INTO users (username, email, password, title,
+		status, profile_color)
+		VALUES (#{username}, #{email}, #{password},
+		#{title}, 'inactive',
+		#{profileColor});
+	</insert>
+
+	<!-- 이메일로 사용자 조회 -->
+	<!-- <select id="findUserByEmail" resultType="com.cjt.tuesday.dtos.UserDto"> 
+		SELECT * FROM users WHERE email = #{email}; </select> -->
+
+	<update id="updateStatus">
+		UPDATE users
+		SET status = #{status}
+		WHERE user_id =
+		#{userId};
+	</update>
+
+	<select id="findUserByEmail" resultMap="userResultMap">
+		SELECT * FROM
+		users WHERE
+		email = #{email}
+	</select>
+
+	<!-- 마지막 프로젝트 ID 조회 -->
+	<select id="getLastProjectId" parameterType="int"
+		resultType="int">
+		SELECT last_project_id
+		FROM users
+		WHERE user_id = #{userId};
+	</select>
+
+	<update id="updateUserStatus">
+		UPDATE users
+		SET status = #{status}
+		WHERE user_id =
+		#{userId};
+	</update>
+
+
+	<!-- 사용자 정보 업데이트 -->
+	<update id="updateUser">
+		UPDATE users
+		SET username = #{username}, title =
+		#{title}
+		WHERE user_id = #{userId}
+	</update>
+
+	<!-- 사용자 직책 업데이트 -->
+	<update id="updateTitle">
+		UPDATE users
+		SET title = #{title}
+		WHERE user_id =
+		#{userId}
+	</update>
+
+	<!-- 이메일로 비밀번호 업데이트 -->
+	<update id="updatePasswordByEmail">
+		UPDATE users
+		SET password = #{password}
+		WHERE email =
+		#{email}
+	</update>
+
+	<!-- 비밀번호 재설정 토큰 저장 -->
+	<insert id="savePasswordResetToken">
+		INSERT INTO password_reset_tokens (user_id, token,
+		expires_at)
+		VALUES (#{userId}, #{token}, #{expiresAt})
+	</insert>
+
+	<!-- 토큰으로 사용자 조회 -->
+	<select id="findPasswordResetToken"
+		resultMap="passwordResetTokenResultMap">
+		SELECT user_id, token, expires_at
+		FROM password_reset_tokens
+		WHERE token = #{token}
+	</select>
+
+	<!-- 사용자 ID로 비밀번호 업데이트 -->
+	<update id="updatePassword">
+		UPDATE users
+		SET password = #{password}
+		WHERE user_id =
+		#{userId}
+	</update>
+
+	<!-- 비밀번호 재설정 토큰 삭제 -->
+	<delete id="deletePasswordResetToken">
+		DELETE FROM password_reset_tokens
+		WHERE token =
+		#{token}
+	</delete>
+
+
+
+</mapper>

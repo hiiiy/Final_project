@@ -1,0 +1,29 @@
+/* 상대방 커서 스타일 */
+div[id^="cursor-"] {
+    pointer-events: none; /* 클릭 방지 */
+    position: absolute;
+    z-index: 1000; /* 커서가 다른 요소 위에 표시되도록 설정 */
+    display: flex; /* 가로 정렬 */
+    align-items: center; /* 커서와 이름 태그 수직 정렬 */
+    gap: 10px; /* 커서와 이름 사이 간격 */
+}
+
+/* 이름 태그 스타일 */
+div[id^="cursor-"] span {
+    white-space: nowrap; /* 텍스트가 한 줄로 표시되도록 설정 */
+    background-color: white;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 10px;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 마우스 커서 모양 */
+div[id^="cursor-"]::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background: url('https://cdn-icons-png.flaticon.com/512/892/892692.png') no-repeat center; /* 예제 커서 아이콘 */
+    background-size: contain;
+}

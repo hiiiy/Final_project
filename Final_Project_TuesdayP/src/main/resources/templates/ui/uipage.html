@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>현재 프로젝트</title>
+<link rel="stylesheet" href="/css/layout.css">
+<link rel="stylesheet" href="/css/uipage.css">
+<link rel="stylesheet" href="/css/teamchat.css">
+<link
+	href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,600&display=swap"
+	rel="stylesheet">
+<link
+	href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+	rel="stylesheet">
+<link rel="stylesheet" href="css/uipage.css">
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<script
+	src="https://cdn.tiny.cloud/1/fndbajzi8n2uqbnvjahc2ot2w5xn32ubaw07sb637ykzlx1p/tinymce/6/tinymce.min.js"
+	referrerpolicy="origin">
+	
+</script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.2/sockjs.min.js">
+	
+</script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js">
+	
+</script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js">
+	
+</script>
+<script src="/js/teaminfo.js" type="module"></script>
+<script src="/js/teamchat.js" type="module"></script>
+<script type="module" src="/js/mouse.js"></script>
+<script src="/js/uipage.js"></script>
+<!--  <script src="/js/fabriceditor.js"></script>
+ -->
+
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+</head>
+<body>
+	<!-- 상단 헤더 -->
+	<header class="header">
+		<div class="header-left">
+			<a th:href="@{/home(projectId=${projectId})}"> <img
+				src="/images/tuesday.png" alt="로고" class="logo">
+			</a>
+		</div>
+		<h1 class="project-name" th:text="${projectName}">프로젝트 이름</h1>
+		<div class="header-icons">
+			<a href="/project/list"><img src="/images/project-icon.png"
+				alt="프로젝트" class="icon"></a> <a href="/user/profile"><img
+				src="/images/user-icon.png" alt="마이페이지" class="icon"></a> <a
+				href="/user/logout"><img src="/images/logout-icon.png"
+				alt="로그아웃" class="icon"></a>
+		</div>
+	</header>
+
+	<div class="main-container">
+		<!-- 좌측 팀원 상태 -->
+		<aside class="team-status" th:fragment="teamStatus">
+			<ul>
+				<!-- 팀장 정보 표시 -->
+				<li>
+					<div class="profile-info" data-user-id="${teamLeader.userId}"
+						data-status="${teamLeader.status}">
+						<div class="profile-photo">
+							<div id="profilePhotoWrapper">
+								<div class="profileInitial"
+									th:style="'background-color:' + ${teamLeader.profileColor}"
+									th:text="${teamLeader.username.substring(0, 2)}"></div>
+								<div class="status-indicator"
+									id="status-indicator-${teamLeader.userId}"
+									th:classappend="${teamLeader.status}"></div>
+							</div>
+						</div>
+						<div class="text-info">
+							<span class="username" th:text="${teamLeader.username}">팀장
+								이름</span> <span class="role" th:text="'팀장'"></span> <span
+								class="status-text" id="status-text-${teamLeader.userId}"
+								th:text="${teamLeader.status == 'active' ? '활동 중' : '오프라인'}"></span>
+						</div>
+					</div>
+				</li>
+
+				<!-- 팀원 정보 표시 -->
+				<li th:each="member : ${teamMembers}">
+					<div class="profile-info" data-user-id="${member.userId}"
+						data-status="${member.status}">
+						<div class="profile-photo">
+							<div id="profilePhotoWrapper">
+								<div class="profileInitial"
+									th:style="'background-color:' + ${member.profileColor}"
+									th:text="${member.username.substring(0, 2)}"></div>
+								<div class="status-indicator"
+									id="status-indicator-${member.userId}"
+									th:classappend="${member.status}"></div>
+							</div>
+						</div>
+						<div class="text-info">
+							<span class="username" th:text="${member.username}">팀원 이름</span>
+							<span class="role" th:text="'팀원'"></span> <span
+								class="status-text" id="status-text-${member.userId}"
+								th:text="${member.status == 'active' ? '활동 중' : '오프라인'}"></span>
+						</div>
+					</div>
+				</li>
+			</ul>
+
+			<!-- 초대 버튼 -->
+			<button id="inviteButton" class="invite-btn"
+				th:data-project-id="${projectId}">팀원 초대</button>
+		</aside>
+		<!-- 중앙 보드 영역 -->
+		<div class="center-content">
+			<body class="uipage">
+				<div id="app">
+					<div id="toolbar">
+						<button id="addSlide">슬라이드 추가</button>
+						<button id="addText">텍스트 추가</button>
+						<input type="file" id="imageUpload" accept="image/*"
+							style="display: none;">
+						<button id="addImage">이미지 추가</button>
+						<select id="addShape">
+							<option value="">도형 추가</option>
+							<option value="rectangle">사각형</option>
+							<option value="circle">원</option>
+							<option value="triangle">삼각형</option>
+						</select>
+						<button id="deleteElement">선택 요소 삭제</button>
+						<button id="deleteSlide">슬라이드 삭제</button>
+						<button id="moveSlideUp">슬라이드 위로</button>
+						<button id="moveSlideDown">슬라이드 아래로</button>
+						<button id="startPresentation">프레젠테이션 시작</button>
+						<button id="exportPPT">PPT 출력</button>
+					</div>
+					<div id="editPanel" class="hidden">
+						<label>크기: <input type="range" id="sizeAdjust" min="10"
+							max="200" value="100"></label> <label>색상: <input
+							type="color" id="colorPicker"></label>
+					</div>
+					<div id="slideContainer"></div>
+				</div>
+				<div id="presentationMode" class="hidden">
+					<div id="currentSlide"></div>
+					<div id="presentationControls">
+						<button id="prevSlide">이전</button>
+						<button id="nextSlide">다음</button>
+						<button id="exitPresentation">종료</button>
+					</div>
+				</div>
+			</body>
+
+
+
+			<!-- Hidden inputs for Thymeleaf variables -->
+			<input type="hidden" id="project-id" th:value="${projectId}" /> <input
+				type="hidden" id="current-user-id" th:value="${currentUser.userId}" />
+			<input type="hidden" id="current-user-name"
+				th:value="${currentUser.username}" /> <input type="hidden"
+				id="current-user-profile-color"
+				th:value="${currentUser.profileColor}">
+			<!-- 채팅 UI -->
+			<div id="chat-container" class="chat-expanded">
+				<div id="chat-header">
+					Team Chat
+					<button id="toggle-chat" class="chat-toggle-btn">–</button>
+				</div>
+				<div id="chat-notification" class="hidden">새로운 메시지가 도착했습니다.</div>
+				<div id="chat-messages"></div>
+				<div id="chat-footer">
+					<input id="chat-input" type="text" placeholder="메시지를 입력하세요" />
+					<button id="send-button">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none"
+							viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+								stroke-width="2" d="M3 10l9-7 9 7-9 7-9-7z" />
+                <path stroke-linecap="round" stroke-linejoin="round"
+								stroke-width="2" d="M3 10v10a1 1 0 001 1h16a1 1 0 001-1V10" />
+            </svg>
+					</button>
+				</div>
+			</div>
+			<!-- JS 초기화 -->
+		<script type="module">
+            import { initChat } from '/js/teamchat.js';
+            import { initializeMouseTracking } from '/js/mouse.js';
+    		import { initTeamInfo } from '/js/teaminfo.js';
+
+
+            const projectId = document.getElementById('project-id').value;
+            const currentUser = {
+                userId: document.getElementById('current-user-id').value,
+                username: document.getElementById('current-user-name').value,
+                profileColor: document.getElementById('current-user-profile-color').value
+            };
+
+            // 전역 객체로 설정
+            window.currentUser = currentUser;
+
+            // 채팅 초기화
+            initChat(projectId, currentUser);
+
+            // 마우스 트래킹 초기화
+            initializeMouseTracking(currentUser);
+
+    		// 팀원 상태 업데이트 초기화
+    		initTeamInfo(projectId, currentUser);
+        </script>
+</body>
+</html>

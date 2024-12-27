@@ -1,0 +1,246 @@
+:root {
+    --primary-color: #2b579a;
+    --secondary-color: #f3f3f3;
+    --text-color: #333;
+    --border-color: #ddd;
+    --hover-color: #e6e6e6;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+}
+
+#app {
+    display: flex;
+    height: 100vh;
+}
+
+
+
+#toolbar {
+    width: 200px;
+    background-color: white;
+    border-right: 1px solid var(--border-color);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden; /* 요소가 잘리는 것을 방지 */
+}
+
+#slideContainer {
+    width: 73vw;
+    height: 90vh; /* 전체 화면 높이 */
+    margin: 0 auto; /* 가운데 정렬 */
+    padding: 20px; /* 패딩 제거 */
+    overflow-y: auto; /* 스크롤 가능 */
+    display: flex;
+    flex-direction: column; /* 필요에 따라 설정 */
+    box-sizing: border-box; /* 패딩 포함 크기 계산 */
+}
+
+#toolbar button,#toolbar select {
+    padding: 10px 15px;
+    background-color: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+button:hover, select:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.slide {
+    background-color: white;
+    border: 1px solid var(--border-color);
+    margin-bottom: 20px;
+    padding: 20px;
+    min-height: 400px;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.slide:hover {
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.slide-content {
+    min-height: 350px;
+    position: relative;
+}
+
+.slide-number {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 12px;
+    color: #999;
+}
+
+.slide img, .slide .shape, .slide .text {
+    position: absolute;
+    cursor: move;
+}
+
+.slide img {
+    max-width: 100%;
+    max-height: 300px;
+}
+
+.slide .text {
+    min-width: 50px;
+    min-height: 20px;
+    padding: 5px;
+    border: 1px dashed transparent;
+}
+
+.slide .text:hover, .slide .text:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+#editPanel {
+    background-color: white;
+    border-top: 1px solid var(--border-color);
+    padding: 10px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+#editPanel label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+.shape {
+    position: absolute;
+}
+
+.rectangle {
+    width: 100px;
+    height: 60px;
+    background-color: var(--primary-color);
+}
+
+.circle {
+    width: 80px;
+    height: 80px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+}
+
+.triangle {
+    width: 0;
+    height: 0;
+    border-left: 50px solid transparent;
+    border-right: 50px solid transparent;
+    border-bottom: 100px solid var(--primary-color);
+}
+
+#presentationMode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#currentSlide {
+    width: 80%;
+    height: 80%;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+#presentationControls {
+    display: flex;
+    gap: 20px;
+}
+
+#presentationMode button {
+    background-color: transparent;
+    color: white;
+    border: 2px solid white;
+    padding: 10px 20px;
+    font-size: 16px;
+}
+
+#presentationMode button:hover {
+    background-color: white;
+    color: black;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.selected {
+    outline: 2px solid var(--primary-color);
+}
+
+@media (max-width: 768px) {
+    #app {
+        flex-direction: column;
+    }
+
+    #toolbar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    #slideContainer {
+        padding: 10px;
+    }
+
+    .slide {
+        min-height: 300px;
+    }
+
+    .slide-content {
+        min-height: 250px;
+    }
+}
+.current-slide {
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.slide-content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.draggable {
+    user-select: none; /* 텍스트 선택 방지 */
+    cursor: move; /* 드래그 커서 설정 */
+    display: inline-block; /* 요소를 inline-block으로 설정 */
+}
+
